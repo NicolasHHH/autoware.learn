@@ -4,7 +4,7 @@
   <arg name="remove_ground" default="true" />
   <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
   <arg name="leaf_size" default="0.1" /><!-- Voxel Grid Filter leaf size-->
-  <arg name="cluster_size_min" default="20" /><!-- Minimum number of points to consider a cluster as valid-->
+  <arg name="cluster_size_min" default="10" /><!-- Minimum number of points to consider a cluster as valid-->
   <arg name="cluster_size_max" default="100000" /><!-- Maximum number of points to allow inside a cluster-->
   <arg name="sync" default="false" />
   <arg name="use_diffnormals" default="false" />

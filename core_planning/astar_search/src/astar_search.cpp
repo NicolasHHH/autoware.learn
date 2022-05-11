@@ -142,6 +142,7 @@ void AstarSearch::createStateUpdateTable()
   }
 }
 
+// 对costmap来进行初始化，将map信息存入定义好的nodes_里面，nodes_中的每一个node包含了astar算法中需要用到的状态量
 void AstarSearch::initialize(const nav_msgs::OccupancyGrid& costmap)
 {
   costmap_ = costmap;
