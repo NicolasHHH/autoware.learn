@@ -1,0 +1,10 @@
+<launch>
+  <!-- TF -->
+  <include file="/home/autoware/Autoware/.autoware/data/tf/sil_tf.launch"/>
+  
+  <!-- Point Cloud -->
+  <node pkg="map_file" type="points_map_loader" name="points_map_loader" args="noupdate /home/autoware/Autoware/.autoware/data/map/sil_pointcloud_map/simcity9.pcd"/>
+  
+  <node pkg="map_file" type="vector_map_loader" name="vector_map_loader" args="/home/autoware/Autoware/.autoware/data/map/sil_vector_map/point.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/curb.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/idx.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/line.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/pole.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/utilitypole.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/vector.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/whiteline.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/crosswalk.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/area.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/stopline.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/node.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/lane.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/signaldata.csv /home/autoware/Autoware/.autoware/data/map/sil_vector_map/wayarea.csv"/>
+
+</launch>
