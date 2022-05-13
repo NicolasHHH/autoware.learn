@@ -12,7 +12,8 @@
   <!-- pure_pursuit -->
   <node pkg="rostopic" type="rostopic" name="config_waypoint_follower_rostopic"
         args="pub -l /config/waypoint_follower autoware_config_msgs/ConfigWaypointFollower
-        '{ header: auto, param_flag: 0, velocity: 10.0, lookahead_distance: 4.0, lookahead_ratio: 2.0, minimum_lookahead_distance: 6.0, displacement_threshold: 0.0, relative_angle_threshold: 0.0 }' "
+        '{ header: auto, velocity_source: 1, const_velocity: 3.0, lookahead_distance: 5.0, 
+        lookahead_ratio: 2.0, minimum_lookahead_distance: 5.0, displacement_threshold: 0.0, relative_angle_threshold: 0.0 }' "
   />
   <include file="$(find pure_pursuit)/launch/pure_pursuit.launch"/>
 

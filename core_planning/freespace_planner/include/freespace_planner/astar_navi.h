@@ -51,6 +51,11 @@ private:
   // classes
   AstarSearch astar_;
 
+  nav_msgs::Path temp_pathh;
+  bool resultt = false;
+  bool replann = true;
+  autoware_msgs::LaneArray lane_array_global;
+
   // variables
   nav_msgs::OccupancyGrid costmap_;
   geometry_msgs::PoseStamped current_pose_local_, current_pose_global_;
@@ -70,6 +75,7 @@ private:
   tf::Transform getTransform(const std::string& from, const std::string& to);
   void publishWaypoints(const nav_msgs::Path& path, const double& velocity);
   void publishStopWaypoints();
+  //void publishGlobalWaypoints(const nav_msgs::Path& path, const double& velocity);
 };
 
 #endif

@@ -486,12 +486,15 @@ void create_waypoint(const autoware_msgs::LaneArray& msg)
 
 void update_values()
 {
-  if (all_vmap.points.empty() || all_vmap.lanes.empty() || all_vmap.nodes.empty() || all_vmap.stoplines.empty() ||
-      all_vmap.dtlanes.empty())
+  if (all_vmap.points.empty() || all_vmap.lanes.empty() || all_vmap.nodes.empty() || all_vmap.stoplines.empty() /*||
+      all_vmap.dtlanes.empty()*/)//note-tianyu-pl 跑gazebo仿真时，暂时将dtlanes相关的注释掉
     return;
 
   lane_vmap = lane_planner::vmap::create_lane_vmap(all_vmap, lane_planner::vmap::LNO_ALL);
-
+  std::cout<<"points: "<<lane_vmap.points.size()<<std::endl;
+  std::cout<<"lanes: "<<lane_vmap.lanes.size()<<std::endl;
+  std::cout<<"nodes: "<<lane_vmap.nodes.size()<<std::endl;
+  std::cout<<"stoplines: "<<lane_vmap.stoplines.size()<<std::endl;
   curve_radius_min = lane_planner::vmap::RADIUS_MAX;
   crossroad_radius_min = lane_planner::vmap::RADIUS_MAX;
   clothoid_radius_min = lane_planner::vmap::RADIUS_MAX;

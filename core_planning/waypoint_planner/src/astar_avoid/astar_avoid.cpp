@@ -191,7 +191,7 @@ void AstarAvoid::run()
 
       if (!found_obstacle)
       {
-        ROS_INFO("STOPPING -> RELAYING, Obstacle disappers");
+        ROS_INFO("STOPPING -> RELAYING, Obstacle disappears");
         state_ = AstarAvoid::STATE::RELAYING;
       }
       else if (replan && avoid_velocity)

@@ -83,6 +83,12 @@ private:
   std::thread publish_thread_;
   std::mutex mutex_;
 
+  bool costmap_initialized_;
+  bool current_pose_initialized_;
+  bool current_velocity_initialized_;
+  bool base_waypoints_initialized_;
+  bool closest_waypoint_initialized_;
+
   // variables
   bool terminate_thread_;
   bool found_avoid_path_;
@@ -98,11 +104,6 @@ private:
   geometry_msgs::TwistStamped current_velocity_;
   tf::Transform local2costmap_;  // local frame (e.g. velodyne) -> costmap origin
 
-  bool costmap_initialized_;
-  bool current_pose_initialized_;
-  bool current_velocity_initialized_;
-  bool base_waypoints_initialized_;
-  bool closest_waypoint_initialized_;
 
   // functions, callback
   void costmapCallback(const nav_msgs::OccupancyGrid& msg);

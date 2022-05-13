@@ -18,8 +18,10 @@
   <arg name="use_points" default="true" />
   <arg name="use_wayarea" default="true" />
 
-  <arg name="objects_input" default="/prediction/motion_predictor/objects" />
-  <arg name="points_input" default="/points_no_ground" />
+  <!-- /detection/lidar_detector/objects /prediction/motion_predictor/objects -->
+  <arg name="objects_input" default="/detection/lidar_detector/objects" />
+  <!-- /points_no_ground-->
+  <arg name="points_input" default="/points_ground" />
 
   <!-- Launch node -->
   <node pkg="costmap_generator" type="costmap_generator" name="costmap_generator" output="screen">

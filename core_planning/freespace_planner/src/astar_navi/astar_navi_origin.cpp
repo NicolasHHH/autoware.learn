@@ -18,7 +18,7 @@
 
 AstarNavi::AstarNavi() : nh_(), private_nh_("~")
 {
-  private_nh_.param<double>("waypoints_velocity", waypoints_velocity_, 3.0);
+  private_nh_.param<double>("waypoints_velocity", waypoints_velocity_, 5.0);
   private_nh_.param<double>("update_rate", update_rate_, 1.0);
 
   lane_pub_ = nh_.advertise<autoware_msgs::LaneArray>("lane_waypoints_array", 1, true);
@@ -29,7 +29,6 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
   costmap_initialized_ = false;
   current_pose_initialized_ = false;
   goal_pose_initialized_ = false;
-
 }
 
 AstarNavi::~AstarNavi()
@@ -74,7 +73,6 @@ void AstarNavi::goalPoseCallback(const geometry_msgs::PoseStamped& msg)
   goal_pose_local_.header.stamp = goal_pose_global_.header.stamp;
 
   goal_pose_initialized_ = true;
-  replann = true;
 
   ROS_INFO_STREAM("Subscribed goal pose and transform from " << msg.header.frame_id << " to "
                                                              << goal_pose_local_.header.frame_id << "\n"
@@ -107,78 +105,37 @@ void AstarNavi::run()
   {
     ros::spinOnce();
 
-    if (!costmap_initialized_ || !current_pose_initialized_)
+    if (!costmap_initialized_ || !current_pose_initialized_ || !goal_pose_initialized_)
     {
       rate.sleep();
       continue;
     }
-    /*
-    goal_pose_local_.pose =
-      transformPose(goal_pose_global_.pose, getTransform(costmap_.header.frame_id, goal_pose_global_.header.frame_id));
-    goal_pose_local_.header.frame_id = costmap_.header.frame_id;
-    goal_pose_local_.header.stamp = goal_pose_global_.header.stamp;
-    */
 
-    if (goal_pose_initialized_ || replann){
+    // initialize vector for A* search, this runs only once
+    astar_.initialize(costmap_);
 
-      goal_pose_initialized_ = false;
+    // update local goal pose
+    goalPoseCallback(goal_pose_global_);
 
-      astar_.initialize(costmap_);
+    // execute astar search
+    ros::WallTime start = ros::WallTime::now();
+    bool result = astar_.makePlan(current_pose_local_.pose, goal_pose_local_.pose);
+    ros::WallTime end = ros::WallTime::now();
 
-      // update local goal pose
-      //goalPoseCallback(goal_pose_global_);
+    ROS_INFO("Astar planning: %f [s]", (end - start).toSec());
 
-      // execute astar search
-      ros::WallTime start = ros::WallTime::now();
-      bool result = astar_.makePlan(current_pose_local_.pose, goal_pose_local_.pose);
-      ros::WallTime end = ros::WallTime::now();
-
-      ROS_INFO("Astar planning: %f [s]", (end - start).toSec());
-
-      resultt = result;
-
-      if (result)
-      {
-        ROS_INFO("FOUND GOAL !!!");
-        temp_pathh = astar_.getPath();
-
-        autoware_msgs::Lane lane;
-        lane.header.frame_id = "map";
-        lane.header.stamp = temp_pathh.header.stamp;
-        lane.increment = 0;
-
-        for (const auto& pose : temp_pathh.poses)
-        {
-          autoware_msgs::Waypoint wp;
-          wp.pose.header = lane.header;
-          wp.pose.pose = transformPose(pose.pose, getTransform(lane.header.frame_id, pose.header.frame_id));
-          wp.pose.pose.position.z = current_pose_global_.pose.position.z;  // height = const
-          wp.twist.twist.linear.x = waypoints_velocity_;
-          lane.waypoints.push_back(wp);
-        }
-
-        autoware_msgs::LaneArray lane_array;
-        lane_array.lanes.push_back(lane);
-        lane_pub_.publish(lane_array);
-        lane_array_global = lane_array;
-        replann = false;
-      }
-      else
-      {
-        ROS_INFO("ASTAR FAIL");
-        publishStopWaypoints();
-      }
-
-      astar_.reset();
-
-    }
-    
-    if (resultt)
+    if (result)
     {
-      ROS_INFO("print astar path, not planning");
-      lane_pub_.publish(lane_array_global);
+      ROS_INFO("Found GOAL!");
+      publishWaypoints(astar_.getPath(), waypoints_velocity_);
+    }
+    else
+    {
+      ROS_INFO("Can't find goal...");
+      publishStopWaypoints();
     }
 
+    astar_.reset();
     rate.sleep();
   }
 }
@@ -204,7 +161,6 @@ void AstarNavi::publishWaypoints(const nav_msgs::Path& path, const double& veloc
   lane_array.lanes.push_back(lane);
   lane_pub_.publish(lane_array);
 }
-
 
 void AstarNavi::publishStopWaypoints()
 {

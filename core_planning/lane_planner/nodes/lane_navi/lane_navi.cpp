@@ -38,6 +38,9 @@ lane_planner::vmap::VectorMap all_vmap;
 lane_planner::vmap::VectorMap lane_vmap;
 tablet_socket_msgs::route_cmd cached_route;
 
+//note-tianyu
+autoware_msgs::Lane local_trajectory_best;
+
 std::vector<std::string> split(const std::string& str, char delim)
 {
 	std::stringstream ss(str);
@@ -158,7 +161,7 @@ void create_waypoint(const tablet_socket_msgs::route_cmd& msg)
 		lane_planner::vmap::write_waypoints(fine_vmaps[i].points, velocity, path);
 	}
 }
-
+/*
 void update_values()
 {
 	if (all_vmap.points.empty() || all_vmap.lanes.empty() || all_vmap.nodes.empty())
@@ -171,7 +174,60 @@ void update_values()
 		cached_route.point.clear();
 		cached_route.point.shrink_to_fit();
 	}
+}*/
+
+void update_values()
+{
+  if (all_vmap.points.empty() || all_vmap.lanes.empty() || all_vmap.nodes.empty())
+    return;
+  //note-tianyu 读取输入的vector_map_info中的point，lane,stopline等元素，建立一个lane_vmap
+  lane_vmap = lane_planner::vmap::create_lane_vmap(all_vmap, lane_planner::vmap::LNO_ALL);
+
+  autoware_msgs::LaneArray lane_waypoint;
+
+  std_msgs::Header header;
+  header.stamp = ros::Time::now();
+  header.frame_id = frame_id;
+  autoware_msgs::Lane l;
+  l.header = header;
+  l.increment = 1;
+
+  size_t last_index = lane_vmap.points.size() - 1;
+  for (size_t i = 0; i < lane_vmap.points.size(); ++i) {
+    double yaw;
+    if (i == last_index) {
+      geometry_msgs::Point p1 =
+        lane_planner::vmap::create_geometry_msgs_point(lane_vmap.points[i]);
+      geometry_msgs::Point p2 =
+        lane_planner::vmap::create_geometry_msgs_point(lane_vmap.points[i - 1]);
+      yaw = atan2(p2.y - p1.y, p2.x - p1.x);
+      yaw -= M_PI;
+    } else {
+      geometry_msgs::Point p1 =
+        lane_planner::vmap::create_geometry_msgs_point(lane_vmap.points[i]);
+      geometry_msgs::Point p2 =
+        lane_planner::vmap::create_geometry_msgs_point(lane_vmap.points[i + 1]);
+      yaw = atan2(p2.y - p1.y, p2.x - p1.x);
+    }
+
+    autoware_msgs::Waypoint w;
+    w.pose.header = header;
+    w.pose.pose.position = lane_planner::vmap::create_geometry_msgs_point(lane_vmap.points[i]);
+    w.pose.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
+    w.twist.header = header;
+    //note-tianyu-pl 这里可以直接更改lane转化的waypoint的速度值
+    w.twist.twist.linear.x = 25 / 3.6; // to m/s
+    l.waypoints.push_back(w);
+  }
+  
+  if(local_trajectory_best.waypoints.size() > 0)
+    lane_waypoint.lanes.push_back(local_trajectory_best);
+  else
+    lane_waypoint.lanes.push_back(l);
+
+  waypoint_pub.publish(lane_waypoint);
 }
+
 
 void cache_point(const vector_map::PointArray& msg)
 {

@@ -10,7 +10,7 @@
   <xacro:include filename="$(find hector_gazebo_plugins)/urdf/gps.xacro"/>
   <xacro:include filename="$(find hector_gazebo_plugins)/urdf/magnetic.xacro"/>
 
-  <xacro:arg name="gpu" default="false"/>
+  <xacro:arg name="gpu" default="true"/>
 
   <xacro:property name="pi" value="3.1415926835897931"/>
 

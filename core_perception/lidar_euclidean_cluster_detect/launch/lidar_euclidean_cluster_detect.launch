@@ -18,7 +18,7 @@
   <arg name="cluster_merge_threshold" default="1.5" />
   <arg name="clustering_distance" default="0.75" />
 
-  <arg name="use_vector_map" default="false" />
+  <arg name="use_vector_map" default="true" />
   <arg name="wayarea_gridmap_layer" default="wayarea" />
 
   <arg name="output_frame" default="velodyne" />
